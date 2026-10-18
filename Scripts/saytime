@@ -47,14 +47,14 @@ def print_help():
     print("""
 Mac Time Announcer Utility Control
 Usage:
-  timeutil start                    - Start/Enable announcements
-  timeutil stop                     - Stop/Disable announcements
-  timeutil interval [minutes] [--use_last_run] - Change interval (e.g., 15, 30, 60)
-  timeutil type [clock|relative] [--use_last_run] - clock (e.g., 15th min) vs relative (from now)
-  timeutil range [only|avoid] [HH:MM] [HH:MM] - Set conditional rule constraints
-  timeutil debug [on|off]           - Enable/disable debug logging
-  timeutil status                   - View current profile parameters
-  timeutil help                     - Show this help menu
+  saytime start                    - Start/Enable announcements
+  saytime stop                     - Stop/Disable announcements
+  saytime interval [minutes] [--use_last_run] - Change interval (e.g., 15, 30, 60)
+  saytime type [clock|relative] [--use_last_run] - clock (e.g., 15th min) vs relative (from now)
+  saytime range [only|avoid] [HH:MM] [HH:MM] - Set conditional rule constraints
+  saytime debug [on|off]           - Enable/disable debug logging
+  saytime status                   - View current profile parameters
+  saytime help                     - Show this help menu
 
 In relative mode, 'type relative' and 'interval' restart the countdown from now.
 Add --use_last_run to keep counting from the last announcement instead.
@@ -95,7 +95,7 @@ elif cmd == "type":
         print("Invalid type. Choose 'clock' or 'relative'")
 elif cmd == "range":
     if len(sys.argv) < 5:
-        print("Error: Provide parameters like: timeutil range only 18:00 10:30 (or 'avoid')")
+        print("Error: Provide parameters like: saytime range only 18:00 10:30 (or 'avoid')")
         sys.exit(1)
     mode_val = sys.argv[2].lower()
     if mode_val not in ["only", "avoid"]:
@@ -117,7 +117,7 @@ elif cmd == "debug":
             save_and_reload(cfg)
             print("Debug mode: DISABLED")
         else:
-            print("Invalid option. Use 'timeutil debug on' or 'timeutil debug off'")
+            print("Invalid option. Use 'saytime debug on' or 'saytime debug off'")
     else:
         status = "ENABLED" if cfg.get("debug", False) else "DISABLED"
         print(f"Debug mode is currently: {status}")

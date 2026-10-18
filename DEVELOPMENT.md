@@ -14,7 +14,7 @@ This document provides developer guidelines and instructions for testing, debugg
                                            │ Fires every minute at :00
                                            ▼
 ┌─────────────────────────────────┐   ┌──────────────────────────┐
-│ CLI Control (timeutil)          │   │ Core Engine              │
+│ CLI Control (saytime)           │   │ Core Engine              │
 │ - Modifies config               │   │ (~/Scripts/announcer.py) │
 │ - Reloads daemon                │   └────────────┬─────────────┘
 └───────────────┬─────────────────┘                │ Reads
@@ -26,7 +26,7 @@ This document provides developer guidelines and instructions for testing, debugg
 ```
 
 - **`Scripts/announcer.py`**: The execution script triggered by `launchd` every minute at second `:00`. Checks config filters and runs speech synthesis.
-- **`Scripts/timeutil`**: Command-line dashboard for users to adjust intervals, modes (`only` vs `avoid`), time ranges, and enable/disable states.
+- **`Scripts/saytime`**: Command-line dashboard for users to adjust intervals, modes (`only` vs `avoid`), time ranges, and enable/disable states.
 - **`LaunchAgents/com.user.timeannouncer.plist`**: macOS launch daemon profile that schedules execution at second `:00` across all hours.
 - **`~/.config/time_announcer.json`**: Runtime state and user preferences.
 
@@ -34,7 +34,7 @@ This document provides developer guidelines and instructions for testing, debugg
 
 ## 2. When Do You Need to Redeploy?
 
-- **Changing Schedule / Settings via `timeutil`?**
+- **Changing Schedule / Settings via `saytime`?**
   - **No deployment needed.** Changes written to `~/.config/time_announcer.json` are read fresh on the next minute tick.
 - **Modifying Python Source Code or Plist?**
   - **Deployment required.** You must sync modified files to `~/Scripts/` and/or reload `launchd`.
@@ -46,7 +46,7 @@ This document provides developer guidelines and instructions for testing, debugg
 ### Step 1: Verify Syntax and Linting
 Before copying files, ensure there are no syntax errors:
 ```bash
-python3 -m py_compile Scripts/announcer.py Scripts/timeutil
+python3 -m py_compile Scripts/announcer.py Scripts/saytime
 ```
 
 ### Step 2: Test the Scripts Directly
@@ -56,15 +56,15 @@ Run the announcer manually from the terminal to verify logic and speech output:
 python3 Scripts/announcer.py
 
 # Test CLI tool commands
-python3 Scripts/timeutil help
-python3 Scripts/timeutil status
+python3 Scripts/saytime help
+python3 Scripts/saytime status
 ```
 
 ### Step 3: Deploy Modified Scripts Locally
 Copy the updated scripts to your local executable directory and set executable permissions:
 ```bash
-cp Scripts/announcer.py Scripts/timeutil ~/Scripts/
-chmod +x ~/Scripts/announcer.py ~/Scripts/timeutil
+cp Scripts/announcer.py Scripts/saytime ~/Scripts/
+chmod +x ~/Scripts/announcer.py ~/Scripts/saytime
 ```
 
 ### Step 4: Deploy Plist Changes (if Plist Modified)
@@ -97,7 +97,7 @@ launchctl list | grep timeannouncer
 ### Inspect Logs
 Enable debug logging via CLI:
 ```bash
-timeutil debug on
+saytime debug on
 ```
 Debug logs are created daily in `~/.config/time_announcer_logs/YYYY-MM-DD.log`. When more than 3 daily log files exist, the oldest files are automatically pruned so only the 3 most recent days are retained:
 ```bash
@@ -105,7 +105,7 @@ Debug logs are created daily in `~/.config/time_announcer_logs/YYYY-MM-DD.log`. 
 cat ~/.config/time_announcer_logs/$(date +%Y-%m-%d).log
 
 # Disable debug logging when finished
-timeutil debug off
+saytime debug off
 ```
 
 ---
