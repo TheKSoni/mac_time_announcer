@@ -7,17 +7,19 @@
 import sys
 import os
 import json
+import time
 
 CONFIG_PATH = os.path.expanduser('~/.config/time_announcer.json')
 
 DEFAULT_CONFIG = {
     "enabled": True,
     "interval_minutes": 15,
-    "type": "clock", 
-    "mode": "only",  
+    "type": "clock", # "clock" or "relative"
+    "mode": "only",  # "only" or "avoid"
     "start_time": "18:00",
     "end_time": "10:30",
-    "last_run": 0
+    "last_run": 0,
+    "debug": False
 }
 
 def load_or_create_config():
@@ -47,12 +49,20 @@ Mac Time Announcer Utility Control
 Usage:
   timeutil start                    - Start/Enable announcements
   timeutil stop                     - Stop/Disable announcements
-  timeutil interval [minutes]       - Change interval (e.g., 15, 30, 60)
-  timeutil type [clock|relative]    - clock (e.g., 15th min) vs relative (from now)
-  timeutil range [only|except] [HH:MM] [HH:MM] - Set conditional rule constraints
+  timeutil interval [minutes] [--use_last_run] - Change interval (e.g., 15, 30, 60)
+  timeutil type [clock|relative] [--use_last_run] - clock (e.g., 15th min) vs relative (from now)
+  timeutil range [only|avoid] [HH:MM] [HH:MM] - Set conditional rule constraints
+  timeutil debug [on|off]           - Enable/disable debug logging
   timeutil status                   - View current profile parameters
   timeutil help                     - Show this help menu
+
+In relative mode, 'type relative' and 'interval' restart the countdown from now.
+Add --use_last_run to keep counting from the last announcement instead.
 """)
+
+# Strip the optional flag so positional arguments keep their positions
+use_last_run = "--use_last_run" in sys.argv
+sys.argv = [a for a in sys.argv if a != "--use_last_run"]
 
 if len(sys.argv) < 2:
     print_help()
@@ -71,22 +81,46 @@ elif cmd == "stop":
     save_and_reload(cfg)
 elif cmd == "interval":
     cfg["interval_minutes"] = int(sys.argv[2])
+    if cfg.get("type") == "relative" and not use_last_run:
+        cfg["last_run"] = time.time()
     save_and_reload(cfg)
 elif cmd == "type":
     val = sys.argv[2].lower()
     if val in ["clock", "relative"]:
         cfg["type"] = val
+        if val == "relative" and not use_last_run:
+            cfg["last_run"] = time.time()
         save_and_reload(cfg)
     else:
         print("Invalid type. Choose 'clock' or 'relative'")
 elif cmd == "range":
     if len(sys.argv) < 5:
-        print("Error: Provide parameters like: timeutil range only 18:00 10:30")
+        print("Error: Provide parameters like: timeutil range only 18:00 10:30 (or 'avoid')")
         sys.exit(1)
-    cfg["mode"] = sys.argv[2].lower()   # "only" or "except"
+    mode_val = sys.argv[2].lower()
+    if mode_val not in ["only", "avoid"]:
+        print("Error: Mode must be either 'only' or 'avoid'")
+        sys.exit(1)
+    cfg["mode"] = mode_val
     cfg["start_time"] = sys.argv[3]      # "18:00"
     cfg["end_time"] = sys.argv[4]        # "10:30"
     save_and_reload(cfg)
+elif cmd == "debug":
+    if len(sys.argv) > 2:
+        sub = sys.argv[2].lower()
+        if sub in ["on", "true", "1", "enable"]:
+            cfg["debug"] = True
+            save_and_reload(cfg)
+            print("Debug mode: ENABLED (logs written to ~/.config/time_announcer_logs/)")
+        elif sub in ["off", "false", "0", "disable"]:
+            cfg["debug"] = False
+            save_and_reload(cfg)
+            print("Debug mode: DISABLED")
+        else:
+            print("Invalid option. Use 'timeutil debug on' or 'timeutil debug off'")
+    else:
+        status = "ENABLED" if cfg.get("debug", False) else "DISABLED"
+        print(f"Debug mode is currently: {status}")
 elif cmd == "status":
     print(json.dumps(cfg, indent=4))
 else:

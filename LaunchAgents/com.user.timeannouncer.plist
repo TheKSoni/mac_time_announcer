@@ -6,10 +6,15 @@
     <string>com.user.timeannouncer</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/usr/bin/python3</string>
-        <string>/Users/YOUR_MAC_USERNAME/Scripts/announcer.py</string>
+        <string>/bin/zsh</string>
+        <string>-c</string>
+        <string>python3 "$HOME/Scripts/announcer.py"</string>
     </array>
-    <key>StartInterval</key>
-    <integer>60</integer>
+    <key>StartCalendarInterval</key>
+    <dict/>
+    <key>StandardOutPath</key>
+    <string>/tmp/com.user.timeannouncer.stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/com.user.timeannouncer.stderr.log</string>
 </dict>
 </plist>
