@@ -1,0 +1,68 @@
+#compdef saytime
+#
+# Copyright (c) 2026 Kunal Soni (theksoni)
+# SPDX-License-Identifier: MIT
+#
+# Zsh tab-completion for the saytime CLI.
+# Install:
+#   mkdir -p ~/.zsh/completions && cp Scripts/_saytime ~/.zsh/completions/
+#   In ~/.zshrc, after p10k block but before `source oh-my-zsh.sh` / compinit:
+#     fpath=(~/.zsh/completions $fpath)
+#   Plain zsh only — also add:
+#     autoload -Uz compinit && compinit
+#   Then: exec zsh
+
+_saytime() {
+    local state
+
+    _arguments \
+        '1:command:->cmds' \
+        '*:: :->args' \
+        && return 0
+
+    case $state in
+        cmds)
+            local -a commands
+            commands=(
+                'start:Enable/start announcements'
+                'stop:Disable/stop announcements'
+                'interval:Set announcement interval in minutes'
+                'type:Set announcement type (clock or relative)'
+                'range:Set time window mode and range'
+                'debug:Enable or disable debug logging'
+                'status:Show current configuration'
+                'help:Show help menu'
+            )
+            _describe 'saytime command' commands
+            ;;
+        args)
+            case $words[1] in
+                interval)
+                    _arguments \
+                        '1:minutes (e.g. 15 30 60):(15 20 30 45 60)' \
+                        '--use_last_run[count from last announcement instead of now]'
+                    ;;
+                type)
+                    _arguments \
+                        '1:type:(clock relative)' \
+                        '--use_last_run[count from last announcement instead of now]'
+                    ;;
+                range)
+                    _arguments \
+                        '1:mode:(only avoid)' \
+                        '2:start time (HH\:MM):' \
+                        '3:end time (HH\:MM):'
+                    ;;
+                debug)
+                    _arguments \
+                        '1:state:(on off)'
+                    ;;
+                help|start|stop|status)
+                    # no further arguments
+                    ;;
+            esac
+            ;;
+    esac
+}
+
+_saytime "$@"

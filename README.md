@@ -45,7 +45,22 @@ macOS has a built-in **"Announce the time"** feature (System Settings → Contro
    sudo ln -sf ~/Scripts/saytime /usr/local/bin/saytime
    ```
 
-4. **Install and start the background agent:**
+4. **Install tab-completion (zsh):**
+   ```bash
+   mkdir -p ~/.zsh/completions
+   cp Scripts/_saytime ~/.zsh/completions/
+   ```
+   Add **one line** to `~/.zshrc` — after the p10k instant-prompt block (if present) but **before** `source $ZSH/oh-my-zsh.sh` (if present), and before any `compinit` call:
+   ```zsh
+   fpath=(~/.zsh/completions $fpath)
+   ```
+   If you use **plain zsh** (no oh-my-zsh), also add the following immediately after that line:
+   ```zsh
+   autoload -Uz compinit && compinit
+   ```
+   Reload your shell (`exec zsh`) and `saytime <Tab>` will show all sub-commands and options.
+
+5. **Install and start the background agent:**
    ```bash
    mkdir -p ~/Library/LaunchAgents
    cp LaunchAgents/com.user.timeannouncer.plist ~/Library/LaunchAgents/
@@ -53,7 +68,7 @@ macOS has a built-in **"Announce the time"** feature (System Settings → Contro
    ```
    The plist resolves `$HOME` dynamically, so it works for any user without edits.
 
-5. **Verify the installation:**
+6. **Verify the installation:**
    ```bash
    launchctl list | grep timeannouncer   # the agent should be listed
    saytime status                       # shows the current settings
@@ -84,6 +99,7 @@ Settings are stored in `~/.config/time_announcer.json`. The file is created auto
 launchctl unload ~/Library/LaunchAgents/com.user.timeannouncer.plist
 rm ~/Library/LaunchAgents/com.user.timeannouncer.plist
 sudo rm /usr/local/bin/saytime
+rm ~/.zsh/completions/_saytime 2>/dev/null   # remove tab-completion
 rm ~/Scripts/announcer.py ~/Scripts/saytime
 rm -rf ~/.config/time_announcer.json ~/.config/time_announcer_logs   # optional: remove settings and logs
 ```

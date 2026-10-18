@@ -45,7 +45,7 @@ def save_and_reload(config):
 
 def print_help():
     print("""
-Mac Time Announcer Utility Control
+Mac saytime Announcer Utility Control
 Usage:
   saytime start                    - Start/Enable announcements
   saytime stop                     - Stop/Disable announcements

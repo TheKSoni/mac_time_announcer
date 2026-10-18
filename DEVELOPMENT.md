@@ -67,6 +67,12 @@ cp Scripts/announcer.py Scripts/saytime ~/Scripts/
 chmod +x ~/Scripts/announcer.py ~/Scripts/saytime
 ```
 
+If you changed `Scripts/_saytime` (the zsh tab-completion file), redeploy it too:
+```bash
+cp Scripts/_saytime ~/.zsh/completions/
+exec zsh   # reload shell so compinit picks up the new file
+```
+
 ### Step 4: Deploy Plist Changes (if Plist Modified)
 If you modified `LaunchAgents/com.user.timeannouncer.plist`:
 ```bash
